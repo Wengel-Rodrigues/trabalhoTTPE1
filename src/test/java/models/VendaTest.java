@@ -54,7 +54,7 @@ public class VendaTest {
         itens.add(item);
         Venda venda = new Venda(LocalDate.now(), cliente, itens, "dinheiro");
 
-        // Aplicar desconto de 20% ou seja 40 reais
+        // Aplicar desconto de 10% ou seja 20 reais
         double valorDesconto = venda.calcularDesconto();
 
         // Verificação

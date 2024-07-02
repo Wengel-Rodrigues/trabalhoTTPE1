@@ -1,16 +1,16 @@
 package models;
 
 public class Endereco {
-    private String estado;
+    private String regiao;
     private String localidade; // (capital ou interior)
 
-    public Endereco(String estado, String localidade) {
-        this.estado = estado;
+    public Endereco(String regiao, String localidade) {
+        this.regiao = regiao;
         this.localidade = localidade;
     }
 
-    public String getEstado() {
-        return estado;
+    public String getRegiao() {
+        return regiao;
     }
 
     public String getLocalidade() {

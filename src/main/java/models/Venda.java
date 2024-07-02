@@ -134,10 +134,25 @@ public class Venda {
         return valorTotalItens * impostoMunicipalRate;
     }
 
-    private double calcularValorTotalItens() {
+    public double calcularValorTotalItens() {
         double total = 0.0;
         for (ItemVendido item : itens) {
             total += item.getValorTotal();
+        }
+        return total;
+    }
+
+    public static double calcularVendasUltimoMes(List<Venda> vendas, Cliente cliente) {
+        LocalDate hoje = LocalDate.now();
+        LocalDate umMesAtras = hoje.minusMonths(1);
+        double total = 0.0;
+
+        for (Venda venda : vendas) {
+            if (venda.getCliente().equals(cliente) && 
+                (venda.getData().isAfter(umMesAtras) || venda.getData().isEqual(umMesAtras)) &&
+                (venda.getData().isBefore(hoje) || venda.getData().isEqual(hoje))) {
+                total += venda.calcularValorTotalItens();
+            }
         }
         return total;
     }

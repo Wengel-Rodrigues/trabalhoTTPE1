@@ -7,12 +7,17 @@ public class Venda {
     private Cliente cliente;
     private List<ItemVendido> itens;
     private String metodoPagamento;
+    private CalculadoraVenda calculadora;
+
+    // Refatoração: Agora, em vez de a classe Venda fazer todos os cálculos por conta própria,
+    // a responsabilidade foi passada para uma nova classe chamada CalculadoraVenda.
 
     public Venda(LocalDate data, Cliente cliente, List<ItemVendido> itens, String metodoPagamento) {
         this.data = data;
         this.cliente = cliente;
         this.itens = itens;
         this.metodoPagamento = metodoPagamento;
+        this.calculadora = new CalculadoraVenda(this);
     }
 
     // Métodos getters e setters
@@ -48,98 +53,28 @@ public class Venda {
         this.metodoPagamento = metodoPagamento;
     }
 
-    // Métodos para cálculo de frete, descontos e impostos
-    public double calcularFrete() {
-        Endereco enderecoCliente = cliente.getEndereco();
-        String localidade = enderecoCliente.getLocalidade();
-        String regiao = enderecoCliente.getRegiao();
+    // Refatoração: Os métodos abaixo foram movidos para a CalculadoraVenda,
+    // deixando a classe Venda mais simples. Agora, a Venda só chama esses métodos
+    // através da CalculadoraVenda, que é responsável por fazer os cálculos.
 
-        // Tabela de valores de frete
-        double freteCapitalDF = 5.0;
-        double freteInteriorDF = 0.0;
-        double freteCapitalCO = 10.0;
-        double freteInteriorCO = 13.0;
-        double freteCapitalNO = 15.0;
-        double freteInteriorNO = 18.0;
-        double freteCapitalN = 20.0;
-        double freteInteriorN = 25.0;
-        double freteCapitalSE = 7.0;
-        double freteInteriorSE = 10.0;
-        double freteCapitalS = 10.0;
-        double freteInteriorS = 13.0;
-    
-
-        if (localidade.equalsIgnoreCase("capital") && regiao.equalsIgnoreCase("DF")) {
-            return freteCapitalDF;
-        } else if (localidade.equalsIgnoreCase("interior") && regiao.equalsIgnoreCase("DF")) {
-            return freteInteriorDF;
-        } else if (localidade.equalsIgnoreCase("capital") && regiao.equalsIgnoreCase("CO")){
-            return freteCapitalCO;
-        } else if (localidade.equalsIgnoreCase("interior") && regiao.equalsIgnoreCase("CO")){
-            return freteInteriorCO;
-        } else if (localidade.equalsIgnoreCase("capital") && regiao.equalsIgnoreCase("NO")){
-            return freteCapitalNO;
-        } else if (localidade.equalsIgnoreCase("interior") && regiao.equalsIgnoreCase("NO")){
-            return freteInteriorNO;
-        } else if (localidade.equalsIgnoreCase("capital") && regiao.equalsIgnoreCase("N")){
-            return freteCapitalN;
-        } else if (localidade.equalsIgnoreCase("interior") && regiao.equalsIgnoreCase("N")){
-            return freteInteriorN;
-        } else if (localidade.equalsIgnoreCase("capital") && regiao.equalsIgnoreCase("SE")){
-            return freteCapitalSE;
-        } else if (localidade.equalsIgnoreCase("interior") && regiao.equalsIgnoreCase("SE")){
-            return freteInteriorSE;
-        } else if (localidade.equalsIgnoreCase("capital") && regiao.equalsIgnoreCase("S")){
-            return freteCapitalS;
-        } else if (localidade.equalsIgnoreCase("interior") && regiao.equalsIgnoreCase("S")){
-            return freteInteriorS;
-        } else {
-            return 0.0;
-        }
-
+   public double calcularFrete() {
+        return calculadora.calcularFrete();
     }
 
     public double calcularDesconto() {
-        double valorTotalItens = calcularValorTotalItens();
-        double desconto = 0.0;
-
-        if (cliente instanceof ClienteEspecial) {
-            desconto += valorTotalItens * 0.10; // Desconto de 10% para clientes especiais
-
-            if (cliente.usaCartaoEmpresa()) {
-                desconto += valorTotalItens * 0.10; // Desconto adicional de 10% com cartão da empresa
-            }
-        }
-
-        if (cliente instanceof ClientePrime) {
-            // Nenhum frete para clientes prime
-            // Cashback de R$0,03 a cada real gasto
-            double cashbackRate = cliente.usaCartaoEmpresa() ? 0.05 : 0.03;
-            double cashback = valorTotalItens * cashbackRate;
-            desconto += cashback;
-        }
-
-        return desconto;
+        return calculadora.calcularDesconto();
     }
 
     public double calcularICMS() {
-        double icmsRate = cliente.getEndereco().getRegiao().equalsIgnoreCase("DF") ? 0.18 : 0.12;
-        double valorTotalItens = calcularValorTotalItens();
-        return valorTotalItens * icmsRate;
+        return calculadora.calcularICMS();
     }
 
     public double calcularImpostoMunicipal() {
-        double impostoMunicipalRate = cliente.getEndereco().getRegiao().equalsIgnoreCase("DF") ? 0.0 : 0.04;
-        double valorTotalItens = calcularValorTotalItens();
-        return valorTotalItens * impostoMunicipalRate;
+        return calculadora.calcularImpostoMunicipal();
     }
 
     public double calcularValorTotalItens() {
-        double total = 0.0;
-        for (ItemVendido item : itens) {
-            total += item.getValorTotal();
-        }
-        return total;
+        return calculadora.calcularValorTotalItens();
     }
 
     public static double calcularVendasUltimoMes(List<Venda> vendas, Cliente cliente) {

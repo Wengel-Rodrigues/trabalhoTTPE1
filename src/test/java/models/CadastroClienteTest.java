@@ -11,27 +11,25 @@ import java.util.Collection;
 @RunWith(Parameterized.class)
 public class CadastroClienteTest {
     private String nome;
-    private String tipo;
     private Endereco endereco;
     private Cliente expectedCliente;
-    private boolean usaCartaoEmpresa; 
+    private boolean usaCartaoEmpresa;
 
-    public CadastroClienteTest(String nome, String tipo, Endereco endereco, Cliente expectedCliente, boolean usaCartaoEmpresa) {
+    public CadastroClienteTest(String nome, Endereco endereco, boolean usaCartaoEmpresa, Cliente expectedCliente) {
         this.nome = nome;
-        this.tipo = tipo;
         this.endereco = endereco;
+        this.usaCartaoEmpresa = usaCartaoEmpresa;
         this.expectedCliente = expectedCliente;
-        this.usaCartaoEmpresa = usaCartaoEmpresa; 
     }
 
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
-                { "João", "padrão", new Endereco("SP", "capital"),
+                { "João", new Endereco("SP", "capital"), false,
                         new ClientePadrao("João", new Endereco("SP", "capital"), false) },
-                { "Maria", "especial", new Endereco("RJ", "interior"),
+                { "Maria", new Endereco("RJ", "interior"), true,
                         new ClienteEspecial("Maria", new Endereco("RJ", "interior"), true) },
-                { "Pedro", "prime", new Endereco("DF", "capital"),
+                { "Pedro", new Endereco("DF", "capital"), true,
                         new ClientePrime("Pedro", new Endereco("DF", "capital"), true) }
         });
     }
@@ -39,12 +37,12 @@ public class CadastroClienteTest {
     @Test
     public void testClienteCreation() {
         Cliente cliente = null;
-        if ("padrão".equals(tipo)) {
-            cliente = new ClientePadrao(nome, endereco, usaCartaoEmpresa); 
-        } else if ("especial".equals(tipo)) {
+        if (expectedCliente instanceof ClientePadrao) {
+            cliente = new ClientePadrao(nome, endereco, usaCartaoEmpresa);
+        } else if (expectedCliente instanceof ClienteEspecial) {
             cliente = new ClienteEspecial(nome, endereco, usaCartaoEmpresa);
-        } else if ("prime".equals(tipo)) {
-            cliente = new ClientePrime(nome, endereco, usaCartaoEmpresa); 
+        } else if (expectedCliente instanceof ClientePrime) {
+            cliente = new ClientePrime(nome, endereco, usaCartaoEmpresa);
         }
 
         assertEquals(expectedCliente.getNome(), cliente.getNome());

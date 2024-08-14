@@ -57,8 +57,10 @@ public class Venda {
     // deixando a classe Venda mais simples. Agora, a Venda só chama esses métodos
     // através da CalculadoraVenda, que é responsável por fazer os cálculos.
 
-   public double calcularFrete() {
-        return calculadora.calcularFrete();
+   // Refatoração: Substituir método por objeto-método para o cálculo de frete.
+    public double calcularFrete() {
+        CalculadoraFrete calculadoraFrete = new CalculadoraFrete(cliente.getEndereco());
+        return calculadoraFrete.calcular();
     }
 
     public double calcularDesconto() {
